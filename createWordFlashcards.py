@@ -6,6 +6,10 @@
     本來
     悟空  悟空打了個妖怪。
     
+    You can also include an English translation before the example, always in parentheses, like this:
+    跟屁蟲 (someone's shadow)我的妹妹是跟屁蟲
+    早晨  (early morning)早晨沒有人欣賞。
+    
     The output is a .docx file with just the characters/words on one side and pinyin + example on the other side.
     The formatting is meant for printing on pre-perforating business card paper. 
 """
@@ -29,7 +33,13 @@ for zi_with_example in vocab:
     zi = zi_with_example[0]
     example = ""
     if len(zi_with_example) > 1:
-        example = zi_with_example[1:]
+        zi_info = zi_with_example[1]
+        if zi_info.startswith('('): 
+            english = zi_info[zi_info.find("("):zi_info.find(")")+1]
+            example = zi_info[zi_info.find(")")+1:]
+        else:
+            english = ""
+            example = zi_info
     pinyin_list.append([pinyin.get(zi),example])
 
 doc = Document('FlashcardTemplate.docx')
@@ -55,6 +65,9 @@ hanzi_style_45.base_style = doc.styles['Hanzi Style']
 pinyin_style = doc.styles.add_style("Pinyin", WD_STYLE_TYPE.PARAGRAPH)
 pinyin_style.base_style = doc.styles['Normal']
 pinyin_style.font.size = Pt(25)
+english_style = doc.styles.add_style("English", WD_STYLE_TYPE.CHARACTER)
+english_style.base_style = doc.styles['Normal']
+english_style.font.size = Pt(15)
 example_style = doc.styles.add_style('Example', WD_STYLE_TYPE.PARAGRAPH)
 example_style.base_style = doc.styles['Hanzi Style']
 example_style.font.size = Pt(20)
@@ -83,7 +96,8 @@ def process_page(hanzi_10, pinyin_10, offset):
         pinyin_p = pinyin_cell.add_paragraph(pinyin_10[i][0],style=doc.styles['Pinyin'])
         pinyin_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         if len(pinyin_10[i]) > 1:
-            for p in pinyin_10[i][1:]:
+            eng_para = pinyin_p.add_run(pinyin_10[i][1],style=doc.styles['English'])
+            for p in pinyin_10[i][2:]:
                 para = pinyin_cell.add_paragraph(p,style=doc.styles['Example'])
                 para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
