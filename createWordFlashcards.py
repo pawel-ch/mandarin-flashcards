@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 """
     To run, have FlashcardTemplate.docx and flashcard-input.txt in the script directory. 
     flashcard-input.txt should have a list of Chinese characters/words with optional example sentences, 
     one entry per line, the characters separated from the example with white space (tab, space, etc) like this:
+   
     高   大人在高高的山。
     本來
     悟空  悟空打了個妖怪。
@@ -9,13 +11,14 @@
     You can also include an English translation before the example, always in parentheses, like this:
     跟屁蟲 (someone's shadow)我的妹妹是跟屁蟲
     早晨  (early morning)早晨沒有人欣賞。
-    
+   
     The output is a .docx file with just the characters/words on one side and pinyin + example on the other side.
     The formatting is meant for printing on pre-perforating business card paper. 
 """
 import codecs
 import pinyin
 import datetime
+import re
 from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.style import WD_STYLE_TYPE
@@ -25,7 +28,7 @@ from docx.enum.table import WD_ROW_HEIGHT_RULE, WD_ALIGN_VERTICAL
 vocab = []
 with codecs.open("flashcard-input.txt", "r", "utf-8-sig") as file:
     for line in file.read().splitlines():
-        entry = line.split()
+        entry = line.split(None, 1)
         vocab.append(entry)
 
 pinyin_list = []
@@ -40,7 +43,7 @@ for zi_with_example in vocab:
         else:
             english = ""
             example = zi_info
-    pinyin_list.append([pinyin.get(zi),example])
+    pinyin_list.append([pinyin.get(zi) + " ",english,example])
 
 doc = Document('FlashcardTemplate.docx')
 doc_table = doc.tables[0]
@@ -65,9 +68,11 @@ hanzi_style_45.base_style = doc.styles['Hanzi Style']
 pinyin_style = doc.styles.add_style("Pinyin", WD_STYLE_TYPE.PARAGRAPH)
 pinyin_style.base_style = doc.styles['Normal']
 pinyin_style.font.size = Pt(25)
+
 english_style = doc.styles.add_style("English", WD_STYLE_TYPE.CHARACTER)
 english_style.base_style = doc.styles['Normal']
 english_style.font.size = Pt(15)
+
 example_style = doc.styles.add_style('Example', WD_STYLE_TYPE.PARAGRAPH)
 example_style.base_style = doc.styles['Hanzi Style']
 example_style.font.size = Pt(20)
@@ -100,6 +105,7 @@ def process_page(hanzi_10, pinyin_10, offset):
             for p in pinyin_10[i][2:]:
                 para = pinyin_cell.add_paragraph(p,style=doc.styles['Example'])
                 para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            
 
 process_page(hanzi_10,pinyin_10,0)
 
