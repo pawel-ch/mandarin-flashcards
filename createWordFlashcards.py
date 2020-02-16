@@ -43,7 +43,7 @@ for zi_with_example in vocab:
         else:
             english = ""
             example = zi_info
-    pinyin_list.append([pinyin.get(zi) + " ",english,example])
+        pinyin_list.append([pinyin.get(zi) + " ",english,example])
 
 doc = Document('FlashcardTemplate.docx')
 doc_table = doc.tables[0]
